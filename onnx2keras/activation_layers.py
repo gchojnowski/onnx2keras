@@ -151,6 +151,27 @@ def convert_softmax(node, params, layers, lambda_func, node_name, keras_name):
     lambda_func[keras_name] = target_layer
 
 
+# gchojnowski@25102021
+# this is a transparent/identity-function as logsoftmax is not supported natively
+# and coded with lambda functions. they are not supported by keras2c later on.
+def convert_logsoftmax(node, params, layers, lambda_func, node_name, keras_name):
+    """
+    Convert softmax activation layer
+    :param node: current operation node
+    :param params: operation attributes
+    :param layers: available keras layers
+    :param lambda_func: function for keras Lambda layer
+    :param node_name: internal converter name
+    :param keras_name: resulting layer name
+    :return: None
+    """
+    if len(node.input) != 1:
+        assert AttributeError('More than 1 input for an activation layer.')
+
+    input_0 = ensure_tf_type(layers[node.input[0]], name="%s_const" % keras_name)
+
+    layers[node_name] = input_0
+
 def convert_prelu(node, params, layers, lambda_func, node_name, keras_name):
     """
     Convert PReLU activation layer
